@@ -5,7 +5,7 @@ $min-width: 720px;
     @return $value / ($value * 0 + 1);
 }
 
-@mixin fluid-property($min-value, $max-value, $property) {
+@mixin fluid-property-vw($min-value, $max-value, $property) {
     $min-vw: $min-width;
     $max-vw: $max-width;
     
@@ -20,7 +20,28 @@ $min-width: 720px;
             @media screen and (min-width: $min-vw) {
                 #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
             }
-            @media screen and (min-width: $max-vw) {
+            // @media screen and (min-width: $max-vw) {
+            //     #{$property}: $max-value;
+            // }
+        }
+    }
+}
+@mixin fluid-property-vh($min-value, $max-value, $property) {
+    $min-vh: 400px;
+    $max-vh: 895px;
+    
+    $u1: unit($min-vh);
+    $u2: unit($max-vh);
+    $u3: unit($min-value);
+    $u4: unit($max-value);
+
+    @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+        & {
+            #{$property}: $min-value;
+            @media screen and (min-height: $min-vh) {
+                #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * ((100vh - #{$min-vh}) / #{strip-unit($max-vh - $min-vh)}));
+            }
+            @media screen and (min-height: $max-vh) {
                 #{$property}: $max-value;
             }
         }
@@ -31,13 +52,20 @@ $min-width: 720px;
         @content;
     }
 }
-
+@mixin wideScreen {
+    @media screen and (min-aspect-ratio: 15/9) {
+        @content;
+    }
+}
 
 html {
     font-weight: 200;
     line-height: 130%;
     color: #373d43;
-    @include fluid-property(10px, 16px, 'font-size');
+    @include fluid-property-vw(10px, 16px, 'font-size');
+    @include wideScreen {
+        @include fluid-property-vh(10px, 16px, 'font-size');
+    }
 }
 
 
@@ -57,48 +85,76 @@ img {
 }
 
 .title {
-    @include fluid-property(16px, 64px, 'font-size');
+    @include fluid-property-vw(16px, 64px, 'font-size');
 
     .title-img {
         display: inline-block;
-        @include fluid-property(12px, 46px, 'height');
+        @include fluid-property-vw(12px, 46px, 'height');
         &.title-velo-logo {
             position: relative;
             top: 2px;
-            @include fluid-property(12px, 48px, 'height');
-            @include fluid-property(4px, 10px, 'margin-right');
+            @include fluid-property-vw(12px, 48px, 'height');
+            @include fluid-property-vw(4px, 10px, 'margin-right');
+        }
+    }
+    @include wideScreen {
+        @include fluid-property-vh(16px, 64px, 'font-size');
+        .title-img {
+            @include fluid-property-vh(12px, 46px, 'height');
+            &.title-velo-logo {
+                @include fluid-property-vh(12px, 48px, 'height');
+                @include fluid-property-vh(4px, 10px, 'margin-right');
+            }
         }
     }
 }
 
 .container {
-    @include fluid-property(700px, 1200px, 'max-width');
+    @include fluid-property-vw(700px, 1200px, 'max-width');
     margin: auto;
     position: relative;
+    @include wideScreen {
+        @include fluid-property-vh(700px, 1200px, 'max-width');
+    }
 }
 
 .header {
     position: absolute;
     top: 0;
-    @include fluid-property(76px, 186px, 'left');
-    @include fluid-property(76px, 186px, 'right');
+    @include fluid-property-vw(76px, 186px, 'left');
+    @include fluid-property-vw(76px, 186px, 'right');
     margin: auto;
     .header-title {
         display: flex;
         align-items: center;
         padding: 30px 0;
         .logo {
-            @include fluid-property(40px, 88px, 'width');
+            @include fluid-property-vw(40px, 88px, 'width');
         }
         .all-topics {
             display: flex;
             align-items: center;
             text-decoration: none;
             color: $white;
-            @include fluid-property(10px, 24px, 'font-size');
+            @include fluid-property-vw(10px, 24px, 'font-size');
             .icon {
-                @include fluid-property(12px, 36px, 'height');
+                @include fluid-property-vw(12px, 36px, 'height');
                 margin-right: 8px;
+            }
+        }
+    }
+    @include wideScreen {
+        @include fluid-property-vh(76px, 186px, 'left');
+        @include fluid-property-vh(76px, 186px, 'right');
+        .header-title {
+            .logo {
+                @include fluid-property-vh(40px, 88px, 'width');
+            }
+            .all-topics {
+                @include fluid-property-vh(10px, 24px, 'font-size');
+                .icon {
+                    @include fluid-property-vh(12px, 36px, 'height');
+                }
             }
         }
     }
@@ -108,6 +164,10 @@ footer {
     background-color: #221e20;
     font-size: 14px;
     line-height: 18px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 2;
     * {
         color: #999999;
     }
@@ -132,6 +192,9 @@ footer {
         a {
             margin: 8px;
         }
+    }
+    @include wideScreen {
+        position: relative;
     }
 }
 
@@ -172,13 +235,59 @@ body {
     height: 200px;
     background-image: linear-gradient(180deg, $black -350%, transparent 100%);
     pointer-events: none;
+
+    #frostedGlassLeft {
+        position: absolute;
+        top: 0;
+        right: 100%;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, .5);
+        backdrop-filter: blur(5px);
+        pointer-events: none;
+        z-index: 1;
+        display: none;
+        @include wideScreen {
+            display: block;
+        }
+    }
+    #frostedGlassRight {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, .5);
+        backdrop-filter: blur(5px);
+        pointer-events: none;
+        z-index: 1;
+        display: none;
+        @include wideScreen {
+            display: block;
+        }
+    }
 }
+
+.artboard-container {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    @include wideScreen {
+        height: auto;
+    }
+}
+
 .artboard {
     max-width: 100%;
     // height: 100vh;
-    padding-top: calc(100% * .50);
-    overflow: hidden;
+    padding-top: calc(100% * .51);//calc(100vw * 0.443)
+    // overflow: hidden;
     position: relative;
+    @include wideScreen {
+        padding-top: 100vh;
+        margin: auto;
+        max-width: 177.77777777778vh;
+    }
 }
 
 .art-container {
@@ -186,12 +295,30 @@ body {
     top: 0;
     left: 0;
     width: 300vw;
-    padding-top: calc(300vw * .7112); // this is based on the flatplan image ratio
+    padding-top: 400vh; // this is based on the flatplan image ratio
     transition: .75s;
     background-image: url('/images/full-picture.png');
     background-size: contain;
     background-position: 0 0;
     background-repeat: no-repeat;
+
+    #frostedGlassBottom {
+        position: fixed;
+        top: calc(100vw * .51);
+        width: 300%;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, .5);
+        backdrop-filter: blur(5px);
+        pointer-events: none;
+        z-index: 1;
+        @include wideScreen {
+            display: none;
+        }
+    }
+
+    @include wideScreen {
+        width: 300%;
+    }
 }
 
 .art-section {
@@ -201,6 +328,10 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
+    @include wideScreen {
+        width: 177.77777777778vh;
+        height: 100vh;
+    }
 }
 
 #section0 {
@@ -212,8 +343,13 @@ body {
         width: 60%;
 
         .flatplan {
-            @include fluid-property(12px, 24px, 'font-size');
-            @include fluid-property(-16px, -60px, 'top');
+            @include fluid-property-vw(12px, 24px, 'font-size');
+            @include fluid-property-vw(-16px, -60px, 'top');
+
+            @include wideScreen {
+                @include fluid-property-vh(12px, 24px, 'font-size');
+                @include fluid-property-vh(-16px, -60px, 'top');
+            }
         }
     }
 }
@@ -224,19 +360,26 @@ body {
     }
 }
 #section1 {
-    top: calc(100vw * .5445); //102.8vh;
+    top: calc(100vw * .5445);
     left: 0;
     .content-box {
         top: 25%;
         left: 11%;
     }
+    @include wideScreen {
+        top: 95vh;
+    }
 }
 #section2 {
-    top: calc(100vw * .5445); //102.8vh;
+    top: calc(100vw * .5445);
     left: 99.1vw;
     .content-box {
         top: 25%;
         left: 35%;
+    }
+    @include wideScreen {
+        top: 95vh;
+        left: 177.77777777778vh;
     }
 }
 #section3 {
@@ -246,6 +389,9 @@ body {
         top: 42%;
         left: 11%;
     }
+    @include wideScreen {
+        left: 177.77777777778vh;
+    }
 }
 #section4 {
     top: 0;
@@ -254,13 +400,20 @@ body {
         top: 42%;
         left: 11%;
     }
+    @include wideScreen {
+        left: 355.55555555556vh;
+    }
 }
 #section5 {
-    top: calc(100vw * .5445); //102.8vh;
+    top: calc(100vw * .5445); 
     left: 198.2vw;
     .content-box {
         top: 30%;
         left: 14%;
+    }
+    @include wideScreen {
+        top: 95vh;
+        left: 355.55555555556vh;
     }
 }
 #section6 {
@@ -270,6 +423,10 @@ body {
         top: 30%;
         left: 30%;
     }
+    @include wideScreen {
+        top: 190vh;
+        left: 355.55555555556vh;
+    }
 }
 #section7 {
     top: calc(200vw * .5445); //205.5vh;
@@ -277,6 +434,10 @@ body {
     .content-box {
         top: 40%;
         left: 60%;
+    }
+    @include wideScreen {
+        top: 190vh;
+        left: 177.77777777778vh;
     }
 }
 #section8 {
@@ -286,6 +447,9 @@ body {
         top: 42%;
         left: 62%;
     }
+    @include wideScreen {
+        top: 190vh;
+    }
 }
 #section9 {
     top: calc(300vw * .5445); //308.4vh;
@@ -294,6 +458,9 @@ body {
         top: 30%;
         left: 50%;
     }
+    @include wideScreen {
+        top: 279vh;
+    }
 }
 #section10 {
     top: calc(300vw * .5445); //308.4vh;
@@ -301,6 +468,10 @@ body {
     .content-box {
         top: 20%;
         left: 15%;
+    }
+    @include wideScreen {
+        top: 279vh;
+        left: 177.77777777778vh;
     }
 }
 #section11 {
@@ -311,11 +482,15 @@ body {
         top: 20%;
         left: 20%;
     }
+    @include wideScreen {
+        top: 279vh;
+        left: 355.55555555556vh;
+    }
 }
 
 .side-nav2 {
     position: absolute;
-    @include fluid-property(36px, 86px, 'left');
+    @include fluid-property-vw(36px, 86px, 'left');
     top: 50%;
     transform: translateY(-50%);
 
@@ -324,9 +499,9 @@ body {
         border: 1px solid $white;
         color: $white;
         box-sizing: border-box;
-        @include fluid-property(12px, 24px, 'font-size');
-        @include fluid-property(20px, 45px, 'height');
-        @include fluid-property(20px, 45px, 'width');
+        @include fluid-property-vw(12px, 24px, 'font-size');
+        @include fluid-property-vw(20px, 45px, 'height');
+        @include fluid-property-vw(20px, 45px, 'width');
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -334,13 +509,30 @@ body {
         transition: .25s;
         
         &:not(:last-child) {
-            @include fluid-property(4px, 16px, 'margin-bottom');
+            @include fluid-property-vw(4px, 16px, 'margin-bottom');
         }
 
         &.active {
             color: $green;
             border: 1px solid $green;
-            @include fluid-property(1px, 4px, 'border-width');
+            @include fluid-property-vw(1px, 4px, 'border-width');
+        }
+    }
+    @include wideScreen {
+        @include fluid-property-vh(36px, 86px, 'left');
+
+        .nav-item {
+            @include fluid-property-vh(12px, 24px, 'font-size');
+            @include fluid-property-vh(20px, 45px, 'height');
+            @include fluid-property-vh(20px, 45px, 'width');
+            
+            &:not(:last-child) {
+                @include fluid-property-vh(4px, 16px, 'margin-bottom');
+            }
+    
+            &.active {
+                @include fluid-property-vh(1px, 4px, 'border-width');
+            }
         }
     }
 }
@@ -349,7 +541,7 @@ body {
 .prev-button {
     position: absolute;
     display: block;
-    @include fluid-property(16px, 30px, 'height');
+    @include fluid-property-vw(16px, 30px, 'height');
     top: 50%;
     transform: translateY(-50%);
     text-decoration: none;
@@ -359,19 +551,26 @@ body {
         top: 50%;
         content: ' ';
         display: block;
-        @include fluid-property(16px, 30px, 'height');
-        @include fluid-property(16px, 30px, 'width');
+        @include fluid-property-vw(16px, 30px, 'height');
+        @include fluid-property-vw(16px, 30px, 'width');
         transform: rotateZ(45deg);
     }
     &.disabled {
         pointer-events: none;
         display: none;
     }
+    @include wideScreen {
+        @include fluid-property-vh(16px, 30px, 'height');
+        &::before {
+            @include fluid-property-vh(16px, 30px, 'height');
+            @include fluid-property-vh(16px, 30px, 'width');
+        }
+    }
 }
 .next-button {
     right: 0;
     &::before {
-        @include fluid-property(20px, 20px, 'right');
+        @include fluid-property-vw(20px, 20px, 'right');
         border-top: 4px solid $green;
         border-right: 4px solid $green;
     }
@@ -381,11 +580,16 @@ body {
             border-right: 2px solid $white;
         }
     }
+    @include wideScreen {
+        &::before {
+            @include fluid-property-vh(20px, 20px, 'right');
+        }
+    }
 }
 .prev-button {
     left: 0;
     &::before {
-        @include fluid-property(20px, 20px, 'left');
+        @include fluid-property-vw(20px, 20px, 'left');
         border-bottom: 4px solid $green;
         border-left: 4px solid $green;
     }
@@ -393,6 +597,11 @@ body {
         &::before {
             border-bottom: 2px solid $white;
             border-left: 2px solid $white;
+        }
+    }
+    @include wideScreen {
+        &::before {
+            @include fluid-property-vh(20px, 20px, 'left');
         }
     }
 }
@@ -472,11 +681,17 @@ body {
 
 .intro-content {
     column-count: 3;
-    @include fluid-property(10px, 24px, 'margin-top');
+    @include fluid-property-vw(10px, 24px, 'margin-top');
 }
 .key-takeaway {
     column-count: 2;
-    @include fluid-property(10px, 24px, 'margin-top');
+    @include fluid-property-vw(10px, 24px, 'margin-top');
+}
+@include wideScreen {
+    .intro-content,
+    .key-takeaway {
+        @include fluid-property-vh(10px, 24px, 'margin-top');
+    }
 }
 
 /*
