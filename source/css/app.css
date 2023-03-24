@@ -6361,7 +6361,7 @@ body.initialised #landscapeNotice {
   padding-top: 400vh;
   -webkit-transition: .75s;
   transition: .75s;
-  background-image: url("/images/full-picture.png");
+  background-image: url("../images/full-picture.png");
   background-size: contain;
   background-position: 0 0;
   background-repeat: no-repeat; }
